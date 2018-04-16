@@ -81,7 +81,6 @@ final class BattleshipTest extends TestCase
 	public function testSetPiece($symbol, $size, $expected) {
 		$this->battleship->setupBoard();
 		$board = $this->battleship->toString();
-		echo($board);
 
 		$piece_size = substr_count($board, $symbol);
 		$equal = $size == $piece_size;

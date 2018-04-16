@@ -47,7 +47,7 @@ final class Battleship {
 		$this->boardSize = 10 - 1;
 	}
 
-	public function getSpace($size) {
+	public function getSpace($size = 0) {
 		if (is_int($size)) {
 			$space_limit = $this->boardSize - $size;
 			return rand(0,$space_limit);
@@ -61,43 +61,32 @@ final class Battleship {
 
 	public function setPiece($piece) {
 		$space_available = false;
-		if ($this->isVertical()) {
-
-			while (!$space_available) {
-				$random_row = $this->getSpace($piece['size']);
-				$random_column = $this->getSpace(0);
-				$space_available = $this->checkSpaces($piece['size'], $random_column, $random_row, 'vertical');
+		$is_vertical = $this->isVertical();
+		while (!$space_available) {
+			$random_row = $is_vertical ? $this->getSpace($piece['size']) : $this->getSpace();
+			$random_column = $is_vertical ? $this->getSpace() : $this->getSpace($piece['size']);
+			$space_available = $this->checkSpaces($piece['size'], $random_column, $random_row, $is_vertical);
+		}
+		for ($i = 0; $i < $piece['size']; $i++) {
+			$this->board[$random_row][$random_column] = $piece['symbol'] . " ";
+			if ($is_vertical) {
+				$random_row++;
+			} else {
+				$random_column++;
 			}
-			for ($i = 0; $i < $piece['size']; $i++, $random_row++) {
-				$this->board[$random_row][$random_column] = $piece['symbol'] . " ";
-			}
-		} else {
-			while (!$space_available) {
-				$random_column = $this->getSpace($piece['size']);
-				$random_row = $this->getSpace(0);
-				$space_available = $this->checkSpaces($piece['size'], $random_column, $random_row, 'horizontal');
-			}
-			for ($i = 0; $i < $piece['size']; $i++, $random_column++) {
-				$this->board[$random_row][$random_column] = $piece['symbol'] . " ";
-			}			
 		}
 	}
 
-	public function checkSpaces($size, $column, $row, $orientation) {
-		if ($orientation == 'vertical') {
-			$random_column = $this->getSpace(0);
-			for ($i = 0; $i < $size; $i++, $row++) {
-				if ($this->board[$row][$column] != $this->emptySpace) {
-					return false;
-				}
+	public function checkSpaces($size, $column, $row, $is_vertical) {
+		for ($i = 0; $i < $size; $i++) {
+			if ($this->board[$row][$column] != $this->emptySpace) {
+				return false;
 			}
-		} else {
-			$random_row = $this->getSpace(0);
-			for ($i = 0; $i < $size; $i++, $column++) {
-				if ($this->board[$row][$column] != $this->emptySpace) {
-					return false;
-				}
-			}			
+			if ($is_vertical) {
+				$row++;
+			} else {
+				$column++;
+			}
 		}
 
 		return true;
@@ -120,3 +109,8 @@ final class Battleship {
 		return $board;
 	}
 }
+
+
+$battleship = new Battleship();
+$battleship->setupBoard();
+echo $battleship->toString();
